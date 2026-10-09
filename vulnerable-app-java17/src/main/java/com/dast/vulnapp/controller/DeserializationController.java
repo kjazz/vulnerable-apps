@@ -128,12 +128,10 @@ public class DeserializationController {
     // OWASP A08:2021 - Native Java deserialization from a server file path param.
     @GetMapping("/java/file")
     public String deserFile(@RequestParam("path") String path) {
-        try {
+        try (FileInputStream fis = new FileInputStream(path);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
             // VULNERABLE: reads and deserializes an arbitrary file path.
-            FileInputStream fis = new FileInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(fis);
             Object obj = ois.readObject();
-            ois.close();
             return "Deserialized file: " + obj;
         } catch (Exception e) {
             return "Error: " + e.getMessage();
